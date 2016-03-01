@@ -68,7 +68,7 @@ class SelScrape(SearchEngineScrape, threading.Thread):
     }
 
     input_field_selectors = {
-        'google': (By.NAME, 'q'),
+        'google': (By.NAME, 'as_epq'),
         'yandex': (By.NAME, 'text'),
         'bing': (By.NAME, 'q'),
         'yahoo': (By.NAME, 'p'),
@@ -76,7 +76,6 @@ class SelScrape(SearchEngineScrape, threading.Thread):
         'duckduckgo': (By.NAME, 'q'),
         'ask': (By.NAME, 'q'),
         'blekko': (By.NAME, 'q'),
-        'google': (By.NAME, 'q'),
         'googleimg': (By.NAME, 'as_q'),
         'baiduimg': (By.NAME, 'word'),
     }
@@ -86,6 +85,10 @@ class SelScrape(SearchEngineScrape, threading.Thread):
             'image_type': (By.ID, 'imgtype_input'),
             'image_size': (By.ID, 'imgsz_input'),
         },
+        'google': {
+            'site': (By.NAME, 'as_sitesearch'),
+            'interval': (By.NAME, 'as_qdr'),
+        }
     }
 
     search_params = {
@@ -93,10 +96,14 @@ class SelScrape(SearchEngineScrape, threading.Thread):
             'image_type': None,
             'image_size': None,
         },
+        'google': {
+            'site': None,
+            'interval': None
+        }
     }
 
     normal_search_locations = {
-        'google': 'https://www.google.com/',
+        'google': 'https://www.google.com/advanced_search',
         'yandex': 'http://www.yandex.ru/',
         'bing': 'http://www.bing.com/',
         'yahoo': 'https://yahoo.com/',
@@ -187,6 +194,7 @@ class SelScrape(SearchEngineScrape, threading.Thread):
         """
         tempdir = tempfile.gettempdir()
         location = os.path.join(tempdir, '{}_{}_debug_screenshot.png'.format(self.search_engine_name, self.browser_type))
+        logger.critical('saving screenshot to %s' % location)
         self.webdriver.get_screenshot_as_file(location)
 
     def _set_xvfb_display(self):
@@ -331,13 +339,15 @@ class SelScrape(SearchEngineScrape, threading.Thread):
         if self.config.get('search_type', 'normal') == 'image':
             starting_point = self.image_search_locations[self.search_engine_name]
         else:
-            starting_point = self.base_search_url
+            starting_point = self.normal_search_locations[self.search_engine_name]
 
+        print ('loading %s' % starting_point)
         self.webdriver.get(starting_point)
 
     def _get_search_param_values(self):
         search_param_values = {}
         if self.search_engine_name in self.search_params:
+            
             for param_key in self.search_params[self.search_engine_name]:
                 cfg = self.config.get(param_key, None)
                 if cfg:
@@ -369,6 +379,7 @@ class SelScrape(SearchEngineScrape, threading.Thread):
         """
 
         def find_visible_search_input(driver):
+            
             input_field = driver.find_element(*self._get_search_input_field())
             return input_field
 
@@ -387,6 +398,7 @@ class SelScrape(SearchEngineScrape, threading.Thread):
         """
         def find_visible_search_param(driver):
             for param, field in self._get_search_param_fields().items():
+                #print('looking for %s-%s' % (param,field))
                 input_field = driver.find_element(*field)
                 if not input_field:
                     return False
@@ -550,13 +562,19 @@ class SelScrape(SearchEngineScrape, threading.Thread):
                             field.setAttribute("value", "%s");
                             '''
                         elif field[0] == By.NAME:
-                            js_tpl = '''
-                            var fields = document.getElementsByName("%s");
-                            for (var f in fields) {
-                                f.setAttribute("value", "%s");
-                            }
-                            '''
+                            # a nasty hack - replace one of the inputs with another
+                            if field[1] == 'as_qdr':
+                                js_tpl = '''
+                                    var el = document.getElementsByName("%s")[0];
+                                    el.name = "tbs";
+                                    el.value = "%s";
+                                '''
+                            else:
+                                js_tpl = '''
+                                    document.getElementsByName("%s")[0].value = "%s";
+                                '''
                         js_str = js_tpl % (field[1], self.search_param_values[param])
+                        print (js_str)
                         self.webdriver.execute_script(js_str)
 
                 try:
