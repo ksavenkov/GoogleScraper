@@ -466,8 +466,13 @@ class SelScrape(SearchEngineScrape, threading.Thread):
                 # wait until the next page link is clickable
                 WebDriverWait(self.webdriver, 5).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
             except (WebDriverException, TimeoutException) as e:
+                ''' Not a big deal, just return false
+                    To make sure everything is ok we'll compare number of results to the actual number of links
                 self._save_debug_screenshot()
                 raise Exception('{}: Cannot locate next page element: {}'.format(self.name, str(e)))
+                '''
+                return False
+
 
             return self.webdriver.find_element_by_css_selector(selector)
 
@@ -504,7 +509,9 @@ class SelScrape(SearchEngineScrape, threading.Thread):
             if self.search_engine_name == 'duckduckgo':
                 time.sleep(1.5)
             else:
-
+                # just wait for 3 sec
+                time.sleep(3)
+            ''' Sometimes there's only one page
                 try:
                     WebDriverWait(self.webdriver, 5).\
             until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, selector), str(self.page_number)))
@@ -513,7 +520,7 @@ class SelScrape(SearchEngineScrape, threading.Thread):
                     content = self.webdriver.find_element_by_css_selector(selector).text
                     raise Exception('Pagenumber={} did not appear in navigation. Got "{}" instead'\
                                     .format(self.page_number), content)
-
+            '''
         elif self.search_type == 'image':
             self.wait_until_title_contains_keyword()
 
