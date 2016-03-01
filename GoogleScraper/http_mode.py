@@ -23,7 +23,7 @@ headers = {
 
 
 def get_GET_params_for_search_engine(query, search_engine, page_number=1, num_results_per_page=10,
-                                     search_type='normal', date_from, date_to):
+                                     search_type='normal', date_from=None, date_to=None):
     """Returns the params of the url for the search engine and the search mode.
 
     Args:
