@@ -23,7 +23,7 @@ headers = {
 
 
 def get_GET_params_for_search_engine(query, search_engine, page_number=1, num_results_per_page=10,
-                                     search_type='normal'):
+                                     search_type='normal', date_from, date_to):
     """Returns the params of the url for the search engine and the search mode.
 
     Args:
@@ -32,6 +32,7 @@ def get_GET_params_for_search_engine(query, search_engine, page_number=1, num_re
         query: The search query
         page_number: Which SERP page.
         num_results_per_page: How many entries per page.
+        date_from, date_to: crawling interval borders (datetime)
 
     Returns:
         The params for the GET url.
@@ -50,6 +51,9 @@ def get_GET_params_for_search_engine(query, search_engine, page_number=1, num_re
 
         if page_number > 1:
             search_params['start'] = str((page_number - 1) * int(num_results_per_page))
+
+        if date_from and date_to:
+            search_params['tbs'] = 'cdr:1,cd_min:%s,cd_max:%s' % (date_from.strftime('%d/%m/%Y'), date_to.strftime('%d/%m/%Y'))
 
         if search_type == 'image':
             search_params.update({
@@ -240,7 +244,8 @@ class HttpScrape(SearchEngineScrape, threading.Timer):
 
         self.search_params = get_GET_params_for_search_engine(self.query, self.search_engine_name,
                                                               self.page_number, self.num_results_per_page,
-                                                              self.search_type)
+                                                              self.search_type, 
+                                                              date_from=self.config.get('date_from', None), date_to=self.config.get('date_to', None))
 
         self.parser = get_parser_by_search_engine(self.search_engine_name)
         self.parser = self.parser(config=self.config)
