@@ -542,7 +542,9 @@ class SelScrape(SearchEngineScrape, threading.Thread):
         """
         for self.query, self.pages_per_keyword in self.jobs.items():
 
-            self.search_input = self._wait_until_search_input_field_appears()
+            max_wait = ( 10 * 60 * 60 ) if self.config.get('manual_captcha_solving', False) else 5
+
+            self.search_input = self._wait_until_search_input_field_appears(max_wait)
 
             if self.search_input is False and self.config.get('stop_on_detection'):
                 self.status = 'Malicious request detected'
@@ -559,7 +561,7 @@ class SelScrape(SearchEngineScrape, threading.Thread):
                 self.search_param_fields = self._get_search_param_fields()
 
                 if self.search_param_fields:
-                    wait_res = self._wait_until_search_param_fields_appears()
+                    wait_res = self._wait_until_search_param_fields_appears(max_wait)
                     if wait_res is False:
                         raise Exception('Waiting search param input fields time exceeds')
                     for param, field in self.search_param_fields.items():
