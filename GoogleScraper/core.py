@@ -234,13 +234,14 @@ def main(return_results=False, parse_cmd_line=True, config_from_dict=None):
         print('Proxy - Proxies stored for scraping projects.')
         start_python_console(namespace)
         return
-
+    '''
     if not (keyword or keywords) and not kwfile:
         # Just print the help.
         get_command_line(True)
         print('No keywords to scrape for. Please provide either an keyword file (Option: --keyword-file) or specify and '
             'keyword with --keyword.')
         return
+    '''
 
     cache_manager = CacheManager(config)
 
