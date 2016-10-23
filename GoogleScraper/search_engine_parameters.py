@@ -65,7 +65,7 @@ google_search_params = {
     # with the specified Front End is used to transform the output.
 
     'cd': None,  # Passes down the keyword rank clicked.
-    'filter': 0,  # Include omitted results if set to 0
+    #'filter': 0,  # Include omitted results if set to 0
     'complete': None,  # Turn auto-suggest and Google Instant on (=1) or off (=0)
     'nfpr': None,  # Turn off auto-correction of spelling on=1, off=0
     'ncr': None,
