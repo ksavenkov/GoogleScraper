@@ -88,7 +88,7 @@ class SelScrape(SearchEngineScrape, threading.Thread):
         'google': {
             'site': (By.NAME, 'as_sitesearch'),
             'interval': (By.NAME, 'as_qdr'),
-            'filter': (By.NAME, 'filter')
+            'filter': (By.NAME, 'as_oq')
         }
     }
 
@@ -579,9 +579,9 @@ class SelScrape(SearchEngineScrape, threading.Thread):
                                     el.name = "tbs";
                                     el.value = "%s";
                                 '''
-                            elif field[1] == 'filter':
+                            elif field[1] == 'as_oq':
                                 js_tpl = '''
-                                    var el = document.getElementsByName("as_occt")[0];
+                                    var el = document.getElementsByName("%s")[0];
                                     el.name = "filter";
                                     el.value = "%s";
                                 '''
