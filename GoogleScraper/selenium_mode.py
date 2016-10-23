@@ -46,7 +46,7 @@ def get_selenium_scraper_by_search_engine_name(config, search_engine_name, *args
     ns = globals()
     if class_name in ns:
         return ns[class_name](config, *args, **kwargs)
-
+    
     return SelScrape(config, *args, **kwargs)
 
 
@@ -88,6 +88,7 @@ class SelScrape(SearchEngineScrape, threading.Thread):
         'google': {
             'site': (By.NAME, 'as_sitesearch'),
             'interval': (By.NAME, 'as_qdr'),
+            'filter': (By.NAME, 'filter')
         }
     }
 
@@ -576,6 +577,12 @@ class SelScrape(SearchEngineScrape, threading.Thread):
                                 js_tpl = '''
                                     var el = document.getElementsByName("%s")[0];
                                     el.name = "tbs";
+                                    el.value = "%s";
+                                '''
+                            elif field[1] == 'filter':
+                                js_tpl = '''
+                                    var el = document.getElementsByName("as_occt")[0];
+                                    el.name = "filter";
                                     el.value = "%s";
                                 '''
                             else:
