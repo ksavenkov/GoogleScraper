@@ -250,7 +250,7 @@ def main(return_results=False, parse_cmd_line=True, config_from_dict=None):
         logger.info('renaming done. restart for normal use.')
         return
 
-    keywords = [keyword, ] if keyword else keywords
+    keywords = [keyword, ] if keyword or keyword == '' else keywords
     scrape_jobs = {}
     if kwfile:
         if not os.path.exists(kwfile):
