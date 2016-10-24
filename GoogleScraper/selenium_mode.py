@@ -99,7 +99,8 @@ class SelScrape(SearchEngineScrape, threading.Thread):
         },
         'google': {
             'site': None,
-            'interval': None
+            'interval': None,
+            'filter': '0'
         }
     }
 
