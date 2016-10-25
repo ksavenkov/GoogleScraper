@@ -567,32 +567,33 @@ class SelScrape(SearchEngineScrape, threading.Thread):
                     if wait_res is False:
                         raise Exception('Waiting search param input fields time exceeds')
                     for param, field in self.search_param_fields.items():
-                        if field[0] == By.ID:
-                            js_tpl = '''
-                            var field = document.getElementById("%s");
-                            field.setAttribute("value", "%s");
-                            '''
-                        elif field[0] == By.NAME:
-                            # a nasty hack - replace one of the inputs with another
-                            if field[1] == 'as_qdr':
+                        if self.search_param_values.get(param, None):
+                            if field[0] == By.ID:
                                 js_tpl = '''
-                                    var el = document.getElementsByName("%s")[0];
-                                    el.name = "tbs";
-                                    el.value = "%s";
+                                var field = document.getElementById("%s");
+                                field.setAttribute("value", "%s");
                                 '''
-                            elif field[1] == 'as_oq':
-                                js_tpl = '''
-                                    var el = document.getElementsByName("%s")[0];
-                                    el.name = "filter";
-                                    el.value = "%s";
-                                '''
-                            else:
-                                js_tpl = '''
-                                    document.getElementsByName("%s")[0].value = "%s";
-                                '''
-                        js_str = js_tpl % (field[1], self.search_param_values[param])
-                        print (js_str)
-                        self.webdriver.execute_script(js_str)
+                            elif field[0] == By.NAME:
+                                # a nasty hack - replace one of the inputs with another
+                                if field[1] == 'as_qdr':
+                                    js_tpl = '''
+                                        var el = document.getElementsByName("%s")[0];
+                                        el.name = "tbs";
+                                        el.value = "%s";
+                                    '''
+                                elif field[1] == 'as_oq':
+                                    js_tpl = '''
+                                        var el = document.getElementsByName("%s")[0];
+                                        el.name = "filter";
+                                        el.value = "%s";
+                                    '''
+                                else:
+                                    js_tpl = '''
+                                        document.getElementsByName("%s")[0].value = "%s";
+                                    '''
+                            js_str = js_tpl % (field[1], self.search_param_values[param])
+                            print (js_str)
+                            self.webdriver.execute_script(js_str)
 
                 try:
                     self.search_input.send_keys(self.query + Keys.ENTER)
